@@ -73,6 +73,16 @@ def analyze_contracts(data: List[Dict]) -> Dict:
     base_coverage = df.groupby('normalized_base')['exchange'].nunique().sort_values(ascending=False).to_dict()
     
     exchange_list = list(markets_by_exchange.keys())
+    
+    partial_common_bases = {}
+    for base, count in base_coverage.items():
+        if count > 1 and count < len(exchange_list):
+            exchanges_with_base = df[df['normalized_base'] == base]['exchange'].unique()
+            partial_common_bases[base] = {
+                'count': count,
+                'exchanges': exchanges_with_base
+            }
+    
     heatmap_data = []
     for i, ex1 in enumerate(exchange_list):
         row = []
@@ -107,6 +117,7 @@ def analyze_contracts(data: List[Dict]) -> Dict:
         'common_bases': common_bases,
         'unique_bases_by_exchange': unique_bases_by_exchange,
         'base_coverage': base_coverage,
+        'partial_common_bases': partial_common_bases,
         'heatmap_data': heatmap_data,
         'exchange_list': exchange_list,
         'overlap_analysis': overlap_analysis

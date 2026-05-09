@@ -12,7 +12,8 @@ EXCHANGES = [
     'deribit',
     'hyperliquid',
     'aster',
-    'lighter'
+    'lighter',
+    'kcex'
 ]
 
 EXCHANGE_NAMES = {
@@ -29,7 +30,8 @@ EXCHANGE_NAMES = {
     'deribit': 'Deribit',
     'hyperliquid': 'Hyperliquid',
     'aster': 'ASTER',
-    'lighter': 'Lighter'
+    'lighter': 'Lighter',
+    'kcex': 'KCEX'
 }
 
 EXCHANGE_COLORS = {
@@ -46,7 +48,8 @@ EXCHANGE_COLORS = {
     'deribit': '#FF6B6B',
     'hyperliquid': '#7B68EE',
     'aster': '#FFD700',
-    'lighter': '#32CD32'
+    'lighter': '#32CD32',
+    'kcex': '#6366F1'
 }
 
 REQUEST_TIMEOUT = 15

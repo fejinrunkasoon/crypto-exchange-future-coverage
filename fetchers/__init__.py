@@ -12,6 +12,7 @@ from .deribit import DeribitFetcher
 from .hyperliquid import HyperliquidFetcher
 from .aster import AsterFetcher
 from .lighter import LighterFetcher
+from .kcex import KCEXFetcher
 
 __all__ = [
     'BinanceFetcher',
@@ -27,5 +28,6 @@ __all__ = [
     'DeribitFetcher',
     'HyperliquidFetcher',
     'AsterFetcher',
-    'LighterFetcher'
+    'LighterFetcher',
+    'KCEXFetcher'
 ]

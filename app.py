@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from fetchers import (
     BinanceFetcher, OKXFetcher, BybitFetcher, GateFetcher, BitgetFetcher,
     KuCoinFetcher, BingXFetcher, XTFetcher, HTXFetcher, KrakenFetcher,
-    DeribitFetcher, HyperliquidFetcher, AsterFetcher, LighterFetcher
+    DeribitFetcher, HyperliquidFetcher, AsterFetcher, LighterFetcher, KCEXFetcher
 )
 import analyzer
 import charts
@@ -27,7 +27,8 @@ def fetch_all_exchanges():
         DeribitFetcher(),
         HyperliquidFetcher(),
         AsterFetcher(),
-        LighterFetcher()
+        LighterFetcher(),
+        KCEXFetcher()
     ]
     
     results = []
@@ -102,38 +103,52 @@ def main():
     
     st.markdown('---')
     st.subheader('各交易所合约数量对比')
-    st.plotly_chart(charts.create_contract_count_chart(analysis['exchange_contract_counts']), use_container_width=True)
+    st.plotly_chart(charts.create_contract_count_chart(analysis['exchange_contract_counts']), width='stretch')
     
     st.markdown('---')
     st.subheader('交易所共同覆盖热力图')
-    st.plotly_chart(charts.create_heatmap(analysis['exchange_list'], analysis['heatmap_data']), use_container_width=True)
+    st.plotly_chart(charts.create_heatmap(analysis['exchange_list'], analysis['heatmap_data']), width='stretch')
     
     st.markdown('---')
     st.subheader('交易所覆盖重叠分析')
-    st.plotly_chart(charts.create_overlap_chart(analysis['overlap_analysis']), use_container_width=True)
+    st.plotly_chart(charts.create_overlap_chart(analysis['overlap_analysis']), width='stretch')
     
     st.markdown('---')
     st.subheader('数据明细')
     
-    tab1, tab2, tab3 = st.tabs(['共同资产列表', '独有资产列表', '原始数据'])
+    tab1, tab2, tab3, tab4 = st.tabs(['共同资产列表', '部分共有资产', '独有资产列表', '原始数据'])
     
     with tab1:
         common_df = pd.DataFrame({'base': sorted(list(analysis['common_bases']))})
-        st.dataframe(common_df, use_container_width=True)
+        st.dataframe(common_df, width='stretch')
         csv = common_df.to_csv(index=False).encode('utf-8')
         st.download_button('📥 下载 CSV', csv, 'common_bases.csv', 'text/csv', key='download_common')
     
     with tab2:
+        partial_data = []
+        for base, info in sorted(analysis['partial_common_bases'].items(), key=lambda x: x[1]['count'], reverse=True):
+            exchange_names = [EXCHANGE_NAMES.get(ex, ex) for ex in info['exchanges']]
+            partial_data.append({
+                'base': base,
+                '覆盖交易所数量': info['count'],
+                '覆盖交易所': ', '.join(exchange_names)
+            })
+        partial_df = pd.DataFrame(partial_data)
+        st.dataframe(partial_df, width='stretch')
+        csv = partial_df.to_csv(index=False).encode('utf-8')
+        st.download_button('📥 下载 CSV', csv, 'partial_common_bases.csv', 'text/csv', key='download_partial')
+    
+    with tab3:
         selected_exchange = st.selectbox('选择交易所', EXCHANGES, format_func=lambda x: EXCHANGE_NAMES.get(x, x))
         unique_markets = analysis['unique_markets_by_exchange'].get(selected_exchange, set())
         unique_df = pd.DataFrame({'market_key': sorted(list(unique_markets))})
-        st.dataframe(unique_df, use_container_width=True)
+        st.dataframe(unique_df, width='stretch')
         csv = unique_df.to_csv(index=False).encode('utf-8')
         st.download_button('📥 下载 CSV', csv, f'unique_markets_{selected_exchange}.csv', 'text/csv', key='download_unique')
     
-    with tab3:
+    with tab4:
         df = analysis['df']
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, width='stretch')
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button('📥 下载 CSV', csv, 'raw_data.csv', 'text/csv', key='download_raw')
     
